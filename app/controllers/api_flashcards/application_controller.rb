@@ -1,6 +1,13 @@
 module ApiFlashcards
-  class ApplicationController < ActionController::Base
-    protect_from_forgery with: :exception
-    http_basic_authenticate_with name: 'zvlex', password: 'apitome1'
+  class ApplicationController < ActionController::API
+    before_action do
+      if params[:private_token]
+        @api_user = User.find_by(token: params[:private_token])
+      end
+
+      unless @api_user
+        render json: { message: I18n.t(:unauthorized_status) }, status: 401
+      end
+    end
   end
 end
